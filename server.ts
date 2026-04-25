@@ -4,11 +4,19 @@ import path from "path";
 import dotenv from "dotenv";
 
 dotenv.config();
+const token = process.env.TELEGRAM_BOT_TOKEN;
+const chatId = process.env.TELEGRAM_CHAT_ID;
+
+console.log("Telegram credentials - Token:", !!token, "Chat ID:", !!chatId);
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json());
+
+  app.get("/api/health", (_req, res) => {
+    res.status(200).json({ ok: true });
+  });
 
   // API route for Telegram notification
   app.post("/api/send-proposal", async (req, res) => {
@@ -16,6 +24,8 @@ async function startServer() {
     const { name, email, phone, service, message } = req.body;
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
+
+    console.log("Telegram credentials - Token:", !!token, "Chat ID:", !!chatId);
 
     if (!token || !chatId) {
       console.error("TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be configured.");
@@ -37,12 +47,27 @@ Message: ${message}`;
         body: JSON.stringify({ chat_id: chatId, text }),
       });
 
-      const responseData = await response.json();
+      const rawResponse = await response.text();
+      let responseData: any = null;
+
+      try {
+        responseData = rawResponse ? JSON.parse(rawResponse) : null;
+      } catch {
+        responseData = { raw: rawResponse };
+      }
+
       console.log("Telegram API Response status:", response.status, responseData);
 
       if (!response.ok) {
         console.error("Telegram API Error:", responseData);
-        return res.status(500).json({ error: "Failed to send to Telegram", details: responseData });
+        const telegramDescription =
+          responseData?.description ||
+          responseData?.raw ||
+          "Telegram rejected the request.";
+
+        return res.status(500).json({
+          error: telegramDescription,
+        });
       }
 
       res.status(200).json({ success: true });

@@ -10,6 +10,29 @@ import { Phone, MessageCircle, Globe, MapPin, Send, Star, Search, Moon, Sun, Lin
 import { COMPANY_DATA } from "./constants";
 import { motion } from "motion/react";
 
+function getProposalApiCandidates() {
+  if (typeof window === "undefined") {
+    return ["/api/send-proposal"];
+  }
+
+  const sameOriginUrl = new URL("/api/send-proposal", window.location.origin).toString();
+  const localServerUrl = "http://localhost:3000/api/send-proposal";
+
+  return Array.from(new Set([sameOriginUrl, localServerUrl]));
+}
+
+function getReadableErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+}
+
 
 export default function YeneBusinessWebApp() {
 
@@ -81,12 +104,30 @@ export default function YeneBusinessWebApp() {
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setErrorMessage("");
+
     try {
-      const response = await fetch("/api/send-proposal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(safeForm),
-      });
+      const endpoints = getProposalApiCandidates();
+      let response: Response | null = null;
+      let lastNetworkError = "";
+
+      for (const endpoint of endpoints) {
+        try {
+          response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(safeForm),
+          });
+          break;
+        } catch (error) {
+          lastNetworkError = getReadableErrorMessage(error);
+          console.error(`Failed to reach ${endpoint}`, error);
+        }
+      }
+
+      if (!response) {
+        throw new Error(lastNetworkError || "Could not reach the backend server.");
+      }
+
       if (response.ok) {
         setSubmitStatus('success');
         setForm({ name: "", email: "", phone: "", service: "", message: "" });
@@ -103,8 +144,10 @@ export default function YeneBusinessWebApp() {
         setErrorMessage(errorMsg);
         setSubmitStatus('error');
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || "Network request failed");
+    } catch (error) {
+      const message = getReadableErrorMessage(error) || "Network request failed";
+      console.error("Proposal submission failed:", error);
+      setErrorMessage(message);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);

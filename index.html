@@ -4,38 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Yene Business Group</title>
-    <script>
-      // Prevent "Cannot set property fetch of #<Window> which has only a getter" errors
-      try {
-        let globalObj = typeof window !== 'undefined' ? window : globalThis;
-        let descriptor = Object.getOwnPropertyDescriptor(globalObj, 'fetch');
-        let targetObj = globalObj;
-        
-        if (!descriptor) {
-          if (globalObj.__proto__) {
-            descriptor = Object.getOwnPropertyDescriptor(globalObj.__proto__, 'fetch');
-            targetObj = globalObj.__proto__;
-          }
-        }
-        
-        if (descriptor && !descriptor.set) {
-          Object.defineProperty(targetObj, 'fetch', {
-            get: descriptor.get || (() => globalObj.fetch),
-            set: function() { console.warn('Ignored attempt to set fetch'); },
-            configurable: true,
-            enumerable: true
-          });
-        } else if (!descriptor) {
-          let originalFetch = globalObj.fetch;
-          Object.defineProperty(globalObj, 'fetch', {
-            get: () => originalFetch,
-            set: function(val) { console.warn('Ignored attempt to set fetch default property'); },
-            configurable: true,
-            enumerable: true
-          });
-        }
-      } catch (e) {}
-    </script>
   </head>
   <body>
     <div id="root"></div>
