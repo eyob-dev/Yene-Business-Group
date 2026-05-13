@@ -21,6 +21,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
+  const testtoken = process.env.TELEGRAM_BOT_TOKEN;
+  const testchatId = process.env.TELEGRAM_CHAT_ID;
+
+  console.log("TOKEN:", testtoken);
+  console.log("CHAT ID:", testchatId);
+
   if (req.method === "OPTIONS") {
     return res.status(200).json({ ok: true });
   }
