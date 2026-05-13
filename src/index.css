@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+/* App theme is manual (not OS). Force document + UA chrome so "light" stays light on phones in system dark mode. */
+html[data-theme="light"],
+html[data-theme="light"] body {
+  color-scheme: light;
+  color-scheme: only light !important;
+  background-color: #f9fafb;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  color-scheme: dark;
+  color-scheme: only dark !important;
+  background-color: #111111;
+}

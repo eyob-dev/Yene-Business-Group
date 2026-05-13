@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { Card } from "./components/Card";
 import { Button } from "./components/Button";
 import {
@@ -10,6 +10,35 @@ import {
   Linkedin,
 } from "lucide-react";
 import { COMPANY_DATA } from "./constants";
+
+const THEME_STORAGE_KEY = "yene-theme";
+
+function readStoredTheme(): "light" | "dark" {
+  try {
+    const s = localStorage.getItem(THEME_STORAGE_KEY);
+    if (s === "dark" || s === "light") return s;
+  } catch {
+    /* private mode / blocked storage */
+  }
+  return "light";
+}
+
+function applyDocumentTheme(theme: "light" | "dark") {
+  const isDark = theme === "dark";
+  const root = document.documentElement;
+  root.dataset.theme = theme;
+  root.style.colorScheme = isDark ? "dark" : "light";
+
+  const colorSchemeMeta = document.getElementById("yene-color-scheme");
+  if (colorSchemeMeta) {
+    colorSchemeMeta.setAttribute("content", isDark ? "only dark" : "only light");
+  }
+
+  const themeColorMeta = document.getElementById("yene-theme-color");
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute("content", isDark ? "#111111" : "#f9fafb");
+  }
+}
 
 function getProposalApiCandidates() {
   if (typeof window === "undefined") {
@@ -38,7 +67,7 @@ function getReadableErrorMessage(error: unknown) {
 }
 
 export default function YeneBusinessWebApp() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(readStoredTheme);
   const [search, setSearch] = useState("");
   const [chatAnswer, setChatAnswer] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -58,9 +87,14 @@ export default function YeneBusinessWebApp() {
 
   const isDark = theme === "dark";
 
-  useEffect(() => {
-    document.documentElement.style.colorScheme = isDark ? "dark" : "light";
-  }, [isDark]);
+  useLayoutEffect(() => {
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      /* ignore */
+    }
+    applyDocumentTheme(theme);
+  }, [theme]);
 
   // const token = process.env.TELEGRAM_BOT_TOKEN;
   // const chatId = process.env.TELEGRAM_CHAT_ID;

@@ -1,9 +1,28 @@
 <!doctype html>
-<html lang="en" style="color-scheme: light">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="only light" id="yene-color-scheme" />
+    <meta name="theme-color" content="#f9fafb" id="yene-theme-color" />
     <title>Yene Business Group</title>
+    <script>
+      (function () {
+        var key = "yene-theme";
+        var t = "light";
+        try {
+          var s = localStorage.getItem(key);
+          if (s === "dark" || s === "light") t = s;
+        } catch (e) {}
+        var root = document.documentElement;
+        root.dataset.theme = t;
+        root.style.colorScheme = t === "dark" ? "dark" : "light";
+        var cs = document.getElementById("yene-color-scheme");
+        if (cs) cs.setAttribute("content", t === "dark" ? "only dark" : "only light");
+        var tc = document.getElementById("yene-theme-color");
+        if (tc) tc.setAttribute("content", t === "dark" ? "#111111" : "#f9fafb");
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
