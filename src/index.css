@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f9fafb;
+  color: #111827;
+}
+
+:root[data-theme="dark"] body {
+  background: #111111;
+  color: #e5e7eb;
+}
+
 /* App theme is manual (not OS). Force document + UA chrome so "light" stays light on phones in system dark mode. */
 html[data-theme="light"],
 html[data-theme="light"] body {
