@@ -31,7 +31,10 @@ function applyDocumentTheme(theme: "light" | "dark") {
 
   const colorSchemeMeta = document.getElementById("yene-color-scheme");
   if (colorSchemeMeta) {
-    colorSchemeMeta.setAttribute("content", isDark ? "only dark" : "only light");
+    colorSchemeMeta.setAttribute(
+      "content",
+      isDark ? "only dark" : "only light",
+    );
   }
 
   const themeColorMeta = document.getElementById("yene-theme-color");
@@ -164,6 +167,8 @@ export default function YeneBusinessWebApp() {
       service: String(form.service || ""),
       message: String(form.message || ""),
     };
+
+    console.log(safeForm);
 
     setIsSubmitting(true);
     setSubmitStatus("idle");
@@ -392,6 +397,15 @@ export default function YeneBusinessWebApp() {
                 name="email"
                 placeholder="Your Email"
                 value={form.email}
+                onChange={handleChange}
+                className={`w-full rounded-2xl p-4 border ${isDark ? "bg-black border-[#333]" : "bg-gray-50 border-gray-200"}`}
+                required
+              />
+              <input
+                type="phone"
+                name="phone"
+                placeholder="Your Phone"
+                value={form.phone}
                 onChange={handleChange}
                 className={`w-full rounded-2xl p-4 border ${isDark ? "bg-black border-[#333]" : "bg-gray-50 border-gray-200"}`}
                 required
